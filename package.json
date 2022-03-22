@@ -1,0 +1,19 @@
+{
+  "name": "a04-ceciliallee",
+  "version": "1.0.0",
+  "description": "server",
+  "main": "server.js",
+  "scripts": {
+    "help": "node server.js --help"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/comp426-2022-spring/a04-ceciliallee.git"
+  },
+  "author": "Cecilia Lee",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/comp426-2022-spring/a04-ceciliallee/issues"
+  },
+  "homepage": "https://github.com/comp426-2022-spring/a04-ceciliallee#readme"
+}
