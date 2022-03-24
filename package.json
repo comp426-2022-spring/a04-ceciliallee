@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/comp426-2022-spring/a04-ceciliallee/issues"
   },
-  "homepage": "https://github.com/comp426-2022-spring/a04-ceciliallee#readme"
+  "homepage": "https://github.com/comp426-2022-spring/a04-ceciliallee#readme",
+  "dependencies": {
+    "better-sqlite3": "^7.5.0",
+    "express": "^4.17.3",
+    "minimist": "^1.2.6",
+    "morgan": "^1.10.0"
+  }
 }
