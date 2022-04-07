@@ -1,5 +1,4 @@
 const db = require('better-sqlite3')
-const Database = require('better-sqlite3')
 
 const datab = new Database('user.db')
 const stmt = db.prepare(`
@@ -22,9 +21,12 @@ if (row === undefined) {
             referrer TEXT,
             useragent TEXT
         );
-    `;
+    `
+    datab.execute(sqInit);
 } else {
-    console.log();
+    console.log("Database already exists.");
 }
+
+
     
    
