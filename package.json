@@ -4,7 +4,9 @@
   "description": "server",
   "main": "server.js",
   "scripts": {
-    "help": "node server.js --help"
+    "start": "node server.js",
+    "help": "node server.js --help",
+    "test": "node server.js --debug --port=5000"
   },
   "repository": {
     "type": "git",
