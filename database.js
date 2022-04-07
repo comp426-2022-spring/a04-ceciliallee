@@ -26,6 +26,7 @@ if (row === undefined) {
 } else {
     console.log("Database already exists.");
 }
+module.exports = datab;
 
 
     
