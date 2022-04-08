@@ -1,7 +1,4 @@
 
-const express = require("express");
-const app = express();
-const fs = require("fs");
 const args = require("minimist")(process.argv.slice(2));
 const help = `
 server.js [options]
@@ -19,6 +16,10 @@ if (args.help || args.h) {
   console.log(help);
   process.exit(0);
 }
+
+const express = require("express");
+const app = express();
+const fs = require("fs");
 
 const morgan = require("morgan");
 const db = require("./database.js");
