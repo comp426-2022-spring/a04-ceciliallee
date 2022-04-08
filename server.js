@@ -15,14 +15,15 @@ server.js [options]
             Logs are always written to database.
 --help, -h	Return this message and exit.
 `;
-const morgan = require("morgan");
-const db = require("./database.js");
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 if (args.help || args.h) {
   console.log(help);
   process.exit(0);
 }
+
+const morgan = require("morgan");
+const db = require("./database.js");
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 const port = args.port || args.p || 5000;
 
