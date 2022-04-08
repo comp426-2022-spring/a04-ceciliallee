@@ -12,9 +12,7 @@ const port = args["port"]
 const db = require("./database.js")
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-const aPort = port || process.env.PORT || 3000;
-const { exit } = require('process');
-
+const aPort = args.port || args.p || 5000;
 
 const help = (`server.js [options]
     --port	Set the port number for the server to listen on. Must be an integer
@@ -190,3 +188,9 @@ app.use((req, res, next) => {
   );
   next();
 })
+
+process.on("SIGINT", () => {
+  server.close(() => {
+    console.log("\nApp stopped.");
+  });
+});
