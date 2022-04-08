@@ -23,6 +23,7 @@ if (row === undefined) {
         );
     `
     datab.execute(sqInit);
+    console.log("Database created");
 } else {
     console.log("Database already exists.");
 }

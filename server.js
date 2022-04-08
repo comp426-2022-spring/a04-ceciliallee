@@ -7,8 +7,11 @@ const minimist = require("minimist");
 const morgan = require("morgan");
 
 const args = minimist(process.argv.slice(2));
-const port = args["port"];
-const database = require("./database.js");
+const fs = require("fs")
+const port = args["port"]
+const db = require("./database.js")
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 const aPort = port || process.env.PORT || 3000;
 const { exit } = require('process');
 
@@ -29,6 +32,10 @@ if (args['help']) {
     --help	Return this message and exit.`)
   exit(EXIT_SUCCESS)
 }
+
+const server = app.listen(port, () => {
+  console.log("App listening on port %PORT%".replace("%PORT%", aPort));
+});
 
 // coin functions
 function coinFlip() {
@@ -85,6 +92,13 @@ function flipACoin(call) {
 }
 // end coin functions
 
+if (args.log == "false") {
+  console.log("NOTICE: not creating file access.log");
+} else {
+  const accessLog = fs.createWriteStream("access.log", { flags: "a" });
+  app.use(morgan("combined", { stream: accessLog }));
+}
+
 app.get("/app/", (req, res) => {
   res.statusCode = 200;
   res.statusMessage = "OK";
@@ -120,11 +134,55 @@ app.get("/app/flip/call/heads/", (req, res) => {
   res.send(result);
 });
 
-const server = app.listen(port, () => {
-  console.log("App listening on port %PORT%".replace("%PORT%", aPort));
-});
-
 // Default response for any other request
 app.use(function (req, res) {
   res.status(404).send("404 NOT FOUND");
 });
+
+app.get("/app/log/access", (req, res) => {
+    // returns all records in accesslog table
+    try {
+        const stmt = db.prepare('SELECT * FROM accesslog').all()
+        res.status(200).json(stmt)
+    } catch (e) {
+        console.error(e)
+    }
+});
+
+app.get("/app/error", (req, res) => {
+    res.status(500).send('Error test successful')
+})
+
+// Default response for any other request
+app.use((req, res, next) => {
+  let logData = {
+    remoteaddr: req.ip,
+    remoteuser: req.user,
+    time: Date.now(),
+    method: req.method,
+    url: req.url,
+    protocol: req.protocol,
+    httpversion: req.httpVersion,
+    secure: req.secure,
+    status: res.statusCode,
+    referer: req.headers['referer'],
+    useragent: req.headers['user-agent']
+  };
+  consnole.log(logData)
+  const stmt = db.prepare(
+    "INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referrer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+  );
+  const info = stmt.run(
+    logdata.remoteaddr,
+    logdata.remoteuser,
+    logdata.time,
+    logdata.method,
+    logdata.url,
+    logdata.protocol,
+    logdata.httpversion,
+    logdata.status,
+    logdata.referrer,
+    logdata.useragent
+  );
+  next();
+})
