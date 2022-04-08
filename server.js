@@ -32,11 +32,9 @@ const server = app.listen(port, () => {
   console.log("Server running on port %PORT%".replace("%PORT%", port));
 });
 
-if (args.log == "false") {
-  console.log("NOTICE: not creating file access.log");
-} else {
-  const accessLog = fs.createWriteStream("access.log", { flags: "a" });
-  app.use(morgan("combined", { stream: accessLog }));
+if (args.log === "true") {
+  const logStream = fs.createWriteStream("./access.log", { flags: "a" });
+  app.use(morgan("combined", { stream: logStream }));
 }
 
 app.use((req, res, next) => {
