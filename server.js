@@ -51,9 +51,6 @@ app.use((req, res, next) => {
     useragent: req.headers["user-agent"],
   };
   console.log(logdata);
-  const stmt = db.prepare(
-    "INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referrer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-  );
   next();
 });
 
@@ -148,22 +145,25 @@ app.get("/app/flip/call/heads/", (req, res) => {
   res.send(result);
 });
 
+
+
+if (args.debug || args.d) {
+  app.get("/app/log/access/", (req, res) => {
+    try {
+      const stmt = db.prepare("SELECT * FROM accesslog").all();
+      res.status(200).json(stmt);
+    } catch (e) {
+      console.error(e);
+    }
+  });
+  app.get("/app/error", (req, res) => {
+    res.status(500).send("Error test successful");
+  });
+}
+
 app.use(function (req, res) {
   res.status(404).send("404 NOT FOUND");
 });
-
-app.get("/app/log/access", (req, res) => {
-    try {
-        const stmt = db.prepare('SELECT * FROM accesslog').all()
-        res.status(200).json(stmt)
-    } catch (e) {
-        console.error(e)
-    }
-});
-
-app.get("/app/error", (req, res) => {
-    res.status(500).send('Error test successful')
-})
 
 process.on("SIGINT", () => {
   server.close(() => {
