@@ -22,8 +22,9 @@ if (row === undefined) {
             useragent TEXT
         );
     `
-    datab.execute(sqInit);
-    console.log("Database created");
+
+    datab.exec(sqInit);
+    console.log("Database is now created");
 } else {
     console.log("Database already exists.");
 }
