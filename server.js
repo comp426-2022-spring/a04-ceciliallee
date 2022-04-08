@@ -16,8 +16,7 @@ const aPort = port || process.env.PORT || 3000;
 const { exit } = require('process');
 
 
-if (args['help']) {
-  console.log(`server.js [options]
+const help = (`server.js [options]
     --port	Set the port number for the server to listen on. Must be an integer
                 between 1 and 65535.
   
@@ -29,8 +28,13 @@ if (args['help']) {
     --log	If set to false, no log files are written. Defaults to true.
                 Logs are always written to database.
   
-    --help	Return this message and exit.`)
-  exit(EXIT_SUCCESS)
+    --help	Return this message and exit.`
+
+)
+  
+if (args.help) {
+  console.log(help)
+  process.exit(0)
 }
 
 const server = app.listen(port, () => {
