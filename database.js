@@ -1,7 +1,7 @@
 const db = require('better-sqlite3')
 
 const datab = new db('log.db')
-const stmt = db.prepare(`
+const stmt = datab.prepare(`
     SELECT name FROM sqlite_master WHERE type='table' and name='accesslogs';`);
 
 let row = stmt.get();
