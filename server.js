@@ -156,7 +156,7 @@ if (args.debug || args.d) {
       console.error(e);
     }
   });
-  app.get("/app/error", (req, res) => {
+  app.get("/app/error/", (req, res) => {
     res.status(500).send("Error test successful");
   });
 }
