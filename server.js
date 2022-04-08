@@ -1,18 +1,16 @@
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
+// const require = createRequire(import.meta.url);
 const express = require("express");
 const app = express();
-const minimist = require("minimist");
+// const minimist = require("minimist");
 const morgan = require("morgan");
 
-const args = minimist(process.argv.slice(2));
-const fs = require("fs")
-const port = args["port"]
+const args = require('minimist')(process.argv.slice(2));
+const fs = require('fs')
+// const port = args["port"]
 const db = require("./database.js")
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-const aPort = args.port || args.p || 5000;
+const port = args.port || args.p || 5000;
 
 const help = (`server.js [options]
     --port	Set the port number for the server to listen on. Must be an integer
@@ -36,7 +34,7 @@ if (args.help) {
 }
 
 const server = app.listen(port, () => {
-  console.log("App listening on port %PORT%".replace("%PORT%", aPort));
+  console.log("App listening on port %PORT%".replace("%PORT%", port));
 });
 
 // coin functions
@@ -48,6 +46,7 @@ function coinFlip() {
     return "tails";
   }
 }
+
 function coinFlips(flips) {
   const coinArray = [];
   for (let i = 0; i < flips; i++) {
@@ -100,6 +99,27 @@ if (args.log == "false") {
   const accessLog = fs.createWriteStream("access.log", { flags: "a" });
   app.use(morgan("combined", { stream: accessLog }));
 }
+
+app.use((req, res, next) => {
+  let logData = {
+    remoteaddr: req.ip,
+    remoteuser: req.user,
+    time: Date.now(),
+    method: req.method,
+    url: req.url,
+    protocol: req.protocol,
+    httpversion: req.httpVersion,
+    secure: req.secure,
+    status: res.statusCode,
+    referer: req.headers["referer"],
+    useragent: req.headers["user-agent"],
+  };
+  console.log(logData);
+  const stmt = db.prepare(
+    "INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referrer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+  );
+  next();
+});
 
 app.get("/app/", (req, res) => {
   res.statusCode = 200;
@@ -155,39 +175,6 @@ app.get("/app/error", (req, res) => {
     res.status(500).send('Error test successful')
 })
 
-// Default response for any other request
-app.use((req, res, next) => {
-  let logData = {
-    remoteaddr: req.ip,
-    remoteuser: req.user,
-    time: Date.now(),
-    method: req.method,
-    url: req.url,
-    protocol: req.protocol,
-    httpversion: req.httpVersion,
-    secure: req.secure,
-    status: res.statusCode,
-    referer: req.headers['referer'],
-    useragent: req.headers['user-agent']
-  };
-  consnole.log(logData)
-  const stmt = db.prepare(
-    "INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referrer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-  );
-  const info = stmt.run(
-    logdata.remoteaddr,
-    logdata.remoteuser,
-    logdata.time,
-    logdata.method,
-    logdata.url,
-    logdata.protocol,
-    logdata.httpversion,
-    logdata.status,
-    logdata.referrer,
-    logdata.useragent
-  );
-  next();
-})
 
 process.on("SIGINT", () => {
   server.close(() => {
