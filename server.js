@@ -1,4 +1,3 @@
-
 const args = require("minimist")(process.argv.slice(2));
 const help = `
 server.js [options]
@@ -144,8 +143,6 @@ app.get("/app/flip/call/heads/", (req, res) => {
   let result = flipACoin("heads");
   res.send(result);
 });
-
-
 
 if (args.debug || args.d) {
   app.get("/app/log/access/", (req, res) => {
