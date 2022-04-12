@@ -27,16 +27,6 @@ app.use(express.json());
 
 const port = args.port || args.p || 5000;
 
-const server = app.listen(port, () => {
-  console.log("Server running on port %PORT%".replace("%PORT%", port));
-});
-
-if (args.log === "true") {
-  const logStream = fs.createWriteStream("./access.log", { flags: "a" });
-  app.use(morgan("combined", { stream: logStream }));
-}
-
-
 // coin functions
 function coinFlip() {
   let randomNum = Math.random();
@@ -93,6 +83,15 @@ function flipACoin(call) {
 }
 // end coin functions
 
+if (args.log === "true") {
+  const logStream = fs.createWriteStream("./access.log", { flags: "a" });
+  app.use(morgan("combined", { stream: logStream }));
+}
+
+const server = app.listen(port, () => {
+  console.log("Server running on port %PORT%".replace("%PORT%", port));
+});
+
 app.get("/app/", (req, res) => {
   res.statusCode = 200;
   res.statusMessage = "OK";
@@ -128,6 +127,18 @@ app.get("/app/flip/call/heads/", (req, res) => {
   res.send(result);
 });
 
+app.get("/app/log/access", (req, res) => {
+    try {
+        const stmt = db.prepare('SELECT * FROM accesslog').all()
+        res.status(200).json(stmt)
+    } catch (e) {
+        console.error(e)
+    }
+});
+
+app.get("/app/error", (req, res) => {
+    res.status(500).send('Error test successful')
+})
 app.use((req, res, next) => {
   if (args.debug || args.d) {
     let logdata = {
@@ -146,19 +157,6 @@ app.use((req, res, next) => {
     next();
   }
 });
-
-app.get("/app/log/access", (req, res) => {
-    try {
-        const stmt = db.prepare('SELECT * FROM accesslog').all()
-        res.status(200).json(stmt)
-    } catch (e) {
-        console.error(e)
-    }
-});
-
-app.get("/app/error", (req, res) => {
-    res.status(500).send('Error test successful')
-})
 
 app.use(function (req, res) {
   res.status(404).send("404 NOT FOUND");
