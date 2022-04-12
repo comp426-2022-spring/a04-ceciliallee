@@ -82,15 +82,87 @@ function flipACoin(call) {
   }
 }
 // end coin functions
+const server = app.listen(port, () => {
+  console.log("Server running on port %PORT%".replace("%PORT%", port));
+});
+
 
 if (args.log === "true") {
   const logStream = fs.createWriteStream("./access.log", { flags: "a" });
   app.use(morgan("combined", { stream: logStream }));
 }
 
-const server = app.listen(port, () => {
-  console.log("Server running on port %PORT%".replace("%PORT%", port));
+app.use((req, res, next) => {
+  if (args.debug || args.d) {
+    let logdata = {
+      remoteaddr: req.ip,
+      remoteuser: req.user,
+      time: Date.now(),
+      method: req.method,
+      url: req.url,
+      protocol: req.protocol,
+      httpversion: req.httpVersion,
+      status: res.statusCode,
+      referrer: req.headers["referer"],
+      useragent: req.headers["user-agent"],
+    };
+    console.log(logdata);
+    next();
+  }
 });
+
+function coinFlip() {
+  let randomNum = Math.random();
+  if (randomNum > 0.5) {
+    return "heads";
+  } else {
+    return "tails";
+  }
+}
+function coinFlips(flips) {
+  const coinArray = [];
+  for (let i = 0; i < flips; i++) {
+    let randomNum = Math.random();
+    if (randomNum > 0.5) {
+      coinArray[i] = "heads";
+    } else {
+      coinArray[i] = "tails";
+    }
+  }
+  return coinArray;
+}
+function countFlips(array) {
+  let headsCount = 0;
+  let tailsCount = 0;
+
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] == "heads") {
+      headsCount++;
+    } else {
+      tailsCount++;
+    }
+  }
+  return {
+    tails: tailsCount,
+    heads: headsCount,
+  };
+}
+function flipACoin(call) {
+  let result = coinFlip();
+  if (result == call) {
+    return {
+      call: call,
+      flip: result,
+      result: "win",
+    };
+  } else {
+    return {
+      call: call,
+      flip: result,
+      result: "lose",
+    };
+  }
+}
 
 app.get("/app/", (req, res) => {
   res.statusCode = 200;
@@ -141,27 +213,6 @@ if (args.debug || args.d) {
   });
 }
 
-
-
-app.use((req, res, next) => {
-  if (args.debug || args.d) {
-    let logdata = {
-      remoteaddr: req.ip,
-      remoteuser: req.user,
-      time: Date.now(),
-      method: req.method,
-      url: req.url,
-      protocol: req.protocol,
-      httpversion: req.httpVersion,
-      status: res.statusCode,
-      referrer: req.headers["referer"],
-      useragent: req.headers["user-agent"],
-    };
-    console.log(logdata);
-    next();
-  }
-});
-
 app.use(function (req, res) {
   res.status(404).send("404 NOT FOUND");
 });
@@ -171,3 +222,4 @@ process.on("SIGINT", () => {
     console.log("\nApp stopped.");
   });
 });
+
