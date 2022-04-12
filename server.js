@@ -127,7 +127,7 @@ app.get("/app/flip/call/heads/", (req, res) => {
   res.send(result);
 });
 
-app.get("/app/log/access", (req, res) => {
+app.get("/app/log/access/", (req, res) => {
     try {
         const stmt = db.prepare('SELECT * FROM accesslog').all()
         res.status(200).json(stmt)
