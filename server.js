@@ -36,22 +36,6 @@ if (args.log === "true") {
   app.use(morgan("combined", { stream: logStream }));
 }
 
-app.use((req, res, next) => {
-  let logdata = {
-    remoteaddr: req.ip,
-    remoteuser: req.user,
-    time: Date.now(),
-    method: req.method,
-    url: req.url,
-    protocol: req.protocol,
-    httpversion: req.httpVersion,
-    status: res.statusCode,
-    referrer: req.headers["referer"],
-    useragent: req.headers["user-agent"],
-  };
-  console.log(logdata);
-  next();
-});
 
 // coin functions
 function coinFlip() {
@@ -144,19 +128,37 @@ app.get("/app/flip/call/heads/", (req, res) => {
   res.send(result);
 });
 
-if (args.debug || args.d) {
-  app.get("/app/log/access/", (req, res) => {
+app.use((req, res, next) => {
+  if (args.debug || args.d) {
+    let logdata = {
+      remoteaddr: req.ip,
+      remoteuser: req.user,
+      time: Date.now(),
+      method: req.method,
+      url: req.url,
+      protocol: req.protocol,
+      httpversion: req.httpVersion,
+      status: res.statusCode,
+      referrer: req.headers["referer"],
+      useragent: req.headers["user-agent"],
+    };
+    console.log(logdata);
+    next();
+  }
+});
+
+app.get("/app/log/access", (req, res) => {
     try {
-      const stmt = db.prepare("SELECT * FROM accesslog").all();
-      res.status(200).json(stmt);
+        const stmt = db.prepare('SELECT * FROM accesslog').all()
+        res.status(200).json(stmt)
     } catch (e) {
-      console.error(e);
+        console.error(e)
     }
-  });
-  app.get("/app/error/", (req, res) => {
-    res.status(500).send("Error test successful");
-  });
-}
+});
+
+app.get("/app/error", (req, res) => {
+    res.status(500).send('Error test successful')
+})
 
 app.use(function (req, res) {
   res.status(404).send("404 NOT FOUND");
