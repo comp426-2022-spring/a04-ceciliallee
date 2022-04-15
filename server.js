@@ -32,7 +32,7 @@ const server = app.listen(port, () => {
 });
 
 if (args.log === "true") {
-  const logStream = fs.createWriteStream("./access.log", { flags: "a" });
+  const logStream = fs.createWriteStream("access.log", { flags: "a" });
   app.use(morgan("combined", { stream: logStream }));
 }
 
