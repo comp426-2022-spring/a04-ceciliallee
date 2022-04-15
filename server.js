@@ -200,7 +200,7 @@ app.get("/app/flip/call/heads/", (req, res) => {
 });
 
 if (args.debug || args.d) {
-  app.get("/app/log/access/", (req, res) => {
+  app.get("/app/log/access", (req, res) => {
     try {
       const stmt = db.prepare("SELECT * FROM accesslog").all();
       res.status(200).json(stmt);
@@ -208,7 +208,7 @@ if (args.debug || args.d) {
       console.error(e);
     }
   });
-  app.get("/app/error/", (req, res) => {
+  app.get("/app/error", (req, res) => {
     res.status(500).send("Error test successful");
   });
 }
