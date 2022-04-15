@@ -1,5 +1,5 @@
 const args = require("minimist")(process.argv.slice(2));
-const help = `
+const help = (`
 server.js [options]
 --port, -p	Set the port number for the server to listen on. Must be an integer
             between 1 and 65535.
@@ -10,15 +10,15 @@ server.js [options]
 --log		If set to false, no log files are written. Defaults to true.
             Logs are always written to database.
 --help, -h	Return this message and exit.
-`;
+`)
 if (args.help || args.h) {
   console.log(help);
   process.exit(0);
 }
 
 const express = require("express");
-const app = express();
 const fs = require("fs");
+const app = express();
 
 const morgan = require("morgan");
 const db = require("./database.js");
@@ -27,73 +27,25 @@ app.use(express.json());
 
 const port = args.port || args.p || 5000;
 
-// coin functions
-function coinFlip() {
-  let randomNum = Math.random();
-  if (randomNum > 0.5) {
-    return "heads";
-  } else {
-    return "tails";
-  }
-}
 
-function coinFlips(flips) {
-  const coinArray = [];
-  for (let i = 0; i < flips; i++) {
-    let randomNum = Math.random();
-    if (randomNum > 0.5) {
-      coinArray[i] = "heads";
-    } else {
-      coinArray[i] = "tails";
-    }
-  }
-  return coinArray;
-}
-function countFlips(array) {
-  let headsCount = 0;
-  let tailsCount = 0;
-
-  for (let i = 0; i < array.length; i++) {
-    if (array[i] == "heads") {
-      headsCount++;
-    } else {
-      tailsCount++;
-    }
-  }
-  return {
-    tails: tailsCount,
-    heads: headsCount,
-  };
-}
-function flipACoin(call) {
-  let result = coinFlip();
-  if (result == call) {
-    return {
-      call: call,
-      flip: result,
-      result: "win",
-    };
-  } else {
-    return {
-      call: call,
-      flip: result,
-      result: "lose",
-    };
-  }
-}
-// end coin functions
 const server = app.listen(port, () => {
   console.log("Server running on port %PORT%".replace("%PORT%", port));
 });
 
+// if (args.log === "true") {
+//   const logStream = fs.createWriteStream("./access.log", { flags: "a" });
+//   app.use(morgan("combined", { stream: logStream }));
+// }
 
-if (args.log === "true") {
-  const logStream = fs.createWriteStream("./access.log", { flags: "a" });
-  app.use(morgan("combined", { stream: logStream }));
+if (args.log === "false") {
+  console.log("not creating file");
+} else {
+  const logStream = fs.createWriteStream('./access.log', { flags: 'a' });
+  app.use(morgan('combined', { stream: logStream }));
 }
 
 app.use((req, res, next) => {
-  if (args.debug || args.d) {
+  //if (args.debug || args.d) {
     let logdata = {
       remoteaddr: req.ip,
       remoteuser: req.user,
@@ -108,8 +60,8 @@ app.use((req, res, next) => {
     };
     console.log(logdata);
     next();
-  }
-});
+  })
+//});
 
 function coinFlip() {
   let randomNum = Math.random();
@@ -164,7 +116,7 @@ function flipACoin(call) {
   }
 }
 
-app.get("/app/", (req, res) => {
+app.get("/app/", (req, res, next) => {
   res.statusCode = 200;
   res.statusMessage = "OK";
   res.writeHead(res.statusCode, { "Content-Type": "text/plain" });
@@ -200,17 +152,17 @@ app.get("/app/flip/call/heads/", (req, res) => {
 });
 
 if (args.debug || args.d) {
-  app.get("/app/log/access", (req, res) => {
-    try {
+  app.get("/app/log/access/", (req, res) => {
+    // try {
       const stmt = db.prepare("SELECT * FROM accesslog").all();
       res.status(200).json(stmt);
-    } catch (e) {
-      console.error(e);
-    }
-  });
-  app.get("/app/error", (req, res) => {
+    // } catch (e) {
+    //   console.error(e);
+    // }
+  })
+  app.get("/app/error/", (req, res) => {
     res.status(500).send("Error test successful");
-  });
+  })
 }
 
 app.use(function (req, res) {
