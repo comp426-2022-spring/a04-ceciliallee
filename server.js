@@ -1,4 +1,7 @@
 const args = require("minimist")(process.argv.slice(2));
+const express = require("express");
+const fs = require("fs");
+const app = express();
 const help = (`
 server.js [options]
 --port, -p	Set the port number for the server to listen on. Must be an integer
@@ -16,10 +19,6 @@ if (args.help || args.h) {
   process.exit(0);
 }
 
-const express = require("express");
-const fs = require("fs");
-const app = express();
-
 const morgan = require("morgan");
 const db = require("./database.js");
 app.use(express.urlencoded({ extended: true }));
@@ -32,20 +31,13 @@ const server = app.listen(port, () => {
   console.log("Server running on port %PORT%".replace("%PORT%", port));
 });
 
-// if (args.log === "true") {
-//   const logStream = fs.createWriteStream("./access.log", { flags: "a" });
-//   app.use(morgan("combined", { stream: logStream }));
-// }
-
-if (args.log === "false") {
-  console.log("not creating file");
-} else {
-  const logStream = fs.createWriteStream('./access.log', { flags: 'a' });
-  app.use(morgan('combined', { stream: logStream }));
+if (args.log === "true") {
+  const logStream = fs.createWriteStream("./access.log", { flags: "a" });
+  app.use(morgan("combined", { stream: logStream }));
 }
 
 app.use((req, res, next) => {
-  //if (args.debug || args.d) {
+  if (args.debug || args.d) {
     let logdata = {
       remoteaddr: req.ip,
       remoteuser: req.user,
@@ -60,8 +52,8 @@ app.use((req, res, next) => {
     };
     console.log(logdata);
     next();
-  })
-//});
+  }
+});
 
 function coinFlip() {
   let randomNum = Math.random();
@@ -153,12 +145,12 @@ app.get("/app/flip/call/heads/", (req, res) => {
 
 if (args.debug || args.d) {
   app.get("/app/log/access/", (req, res) => {
-    // try {
+    try {
       const stmt = db.prepare("SELECT * FROM accesslog").all();
       res.status(200).json(stmt);
-    // } catch (e) {
-    //   console.error(e);
-    // }
+    } catch (e) {
+      console.error(e);
+    }
   })
   app.get("/app/error/", (req, res) => {
     res.status(500).send("Error test successful");
