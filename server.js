@@ -32,24 +32,39 @@ const server = app.listen(port, () => {
 });
 
 if (args.log === "true") {
-  const accessLog = fs.createWriteStream('access.log', { flags: "a" });
-  app.use(morgan("combined", { stream: accessLog }));
+  const logStream = fs.createWriteStream('access.log', { flags: "a" });
+  app.use(morgan("combined", { stream: logStream }));
 }
 
 app.use((req, res, next) => {
   if (args.debug || args.d) {
     let logdata = {
-      remoteaddr: req.ip,
-      remoteuser: req.user,
-      time: Date.now(),
-      method: req.method,
-      url: req.url,
-      protocol: req.protocol,
-      httpversion: req.httpVersion,
-      status: res.statusCode,
-      referrer: req.headers["referer"],
-      useragent: req.headers["user-agent"],
+      remoteaddr: req.ip ?? null,
+      remoteuser: req.user ?? null,
+      time: Date.now() ?? null,
+      method: req.method ?? null,
+      url: req.url ?? null,
+      protocol: req.protocol ?? null,
+      httpversion: req.httpVersion ?? null,
+      status: res.statusCode ?? null,
+      referrer: req.headers["referer"] ?? null,
+      useragent: req.headers["user-agent"] ?? null,
     };
+    const stmt = db.prepare(
+      "INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referrer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    );
+    const info = stmt.run(
+      logdata.remoteaddr,
+      logdata.remoteuser,
+      logdata.time,
+      logdata.method,
+      logdata.url,
+      logdata.protocol,
+      logdata.httpversion,
+      logdata.status,
+      logdata.referrer,
+      logdata.useragent
+    );
     console.log(logdata);
     next();
   }

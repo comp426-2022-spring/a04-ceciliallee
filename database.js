@@ -22,7 +22,6 @@ if (row === undefined) {
             useragent TEXT
         );
     `
-
     db.exec(sqlInit)
 } else {
     console.log('Log database exists.')
