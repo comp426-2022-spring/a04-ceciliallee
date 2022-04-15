@@ -2,6 +2,11 @@ const args = require("minimist")(process.argv.slice(2));
 const express = require("express");
 const fs = require("fs");
 const app = express();
+const morgan = require("morgan");
+const db = require("./database.js");
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 const help = (`
 server.js [options]
 --port, -p	Set the port number for the server to listen on. Must be an integer
@@ -19,10 +24,6 @@ if (args.help || args.h) {
   process.exit(0);
 }
 
-const morgan = require("morgan");
-const db = require("./database.js");
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
 const port = args.port || args.p || 5000;
 
